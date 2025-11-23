@@ -1,0 +1,14 @@
+{
+  "users": [
+    { "id": "1", "name": "Ali", "role": "user", "phoneNumber": "+60123456789" }
+  ],
+  "vehicles": [
+    { "id": "1", "plateNumber": "Wxx 1234", "model": "Myvi", "isDefault": true }
+  ],
+  "bookings": [],
+  "slots": [
+    { "id": "A1", "status": "FREE", "type": "standard" },
+    { "id": "A2", "status": "OCCUPIED", "type": "standard" },
+    { "id": "A3", "status": "RESERVED", "type": "ev" }
+  ]
+}

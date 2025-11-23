@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #0066cc;
+  --color-brand-secondary: #ff9900;
+  --color-status-success: #10b981;
+  --color-status-error: #ef4444;
+  --color-status-reserved: #f59e0b;
+
+  --font-sans: "Inter", sans-serif;
+}
+
+/* Dark mode support */
+@variant dark (&:where(.dark, .dark *));
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  font-family: var(--font-sans);
+}
