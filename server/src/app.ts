@@ -34,14 +34,14 @@ app.use(hpp());
 
 import userRoutes from "./routes/user.routes";
 import vehicleRoutes from "./routes/vehicle.routes";
-import bookingRoutes from "./routes/booking.routes";
 import slotRoutes from "./routes/slot.routes";
+import bookingRoutes from "./routes/booking.routes";
 
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/vehicles", vehicleRoutes);
-app.use("/api/bookings", bookingRoutes);
 app.use("/api/slots", slotRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 // Swagger Documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));

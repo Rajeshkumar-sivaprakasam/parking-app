@@ -40,3 +40,18 @@ export const protect = (
     return sendResponse(res, 401, false, null, "Not authorized, no token");
   }
 };
+
+export const authorize = (...roles: string[]) => {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!roles.includes(req.user.role)) {
+      return sendResponse(
+        res,
+        403,
+        false,
+        null,
+        `User role ${req.user.role} is not authorized to access this route`
+      );
+    }
+    next();
+  };
+};

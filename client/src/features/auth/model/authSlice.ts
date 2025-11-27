@@ -73,6 +73,26 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+export const updateProfile = createAsyncThunk(
+  "auth/updateProfile",
+  async (
+    { id, data }: { id: string; data: Partial<User> },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.put(
+        API_ENDPOINTS.users.update(id),
+        data
+      );
+      return response.data.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Profile update failed"
+      );
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -119,6 +139,18 @@ const authSlice = createSlice({
         state.loading = false;
       })
       .addCase(registerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(updateProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

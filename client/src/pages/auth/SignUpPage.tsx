@@ -1,60 +1,66 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useDispatch } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { registerUser } from '../../features/auth/model/authSlice';
-import { Mail, Lock, Eye, EyeOff, User, Phone, UserPlus } from 'lucide-react';
-import type { AppDispatch, RootState } from '../../app/providers/store';
-import { useSelector } from 'react-redux';
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { registerUser } from "../../features/auth/model/authSlice";
+import { Mail, Lock, Eye, EyeOff, User, Phone, UserPlus } from "lucide-react";
+import type { AppDispatch, RootState } from "../../app/providers/store";
 
 export const SignUpPage = () => {
-  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: ''
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
-  const { loading, error: authError } = useSelector((state: RootState) => state.auth);
-  const [localError, setLocalError] = useState('');
+
+  const { loading, error: authError } = useSelector(
+    (state: RootState) => state.auth
+  );
+  const [localError, setLocalError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLocalError('');
+    setLocalError("");
 
-    if (!formData.name || !formData.email || !formData.phone || !formData.password) {
-      setLocalError('Please fill in all required fields');
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.phone ||
+      !formData.password
+    ) {
+      setLocalError("Please fill in all required fields");
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setLocalError('Passwords do not match');
+      setLocalError("Passwords do not match");
       return;
     }
 
-    const resultAction = await dispatch(registerUser({
-      name: formData.name,
-      email: formData.email,
-      phoneNumber: formData.phone,
-      password: formData.password
-    }));
+    const resultAction = await dispatch(
+      registerUser({
+        name: formData.name,
+        email: formData.email,
+        phoneNumber: formData.phone,
+        password: formData.password,
+      })
+    );
 
     if (registerUser.fulfilled.match(resultAction)) {
-      navigate('/login');
+      navigate("/login");
     }
   };
 
@@ -72,19 +78,27 @@ export const SignUpPage = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-primary rounded-2xl text-white text-3xl font-bold mb-4 shadow-xl shadow-brand-primary/30">
             P
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">ParkMy</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">Create your account</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            ParkMy
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">
+            Create your account
+          </p>
         </div>
 
         {/* Sign Up Form */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 border border-gray-100 dark:border-gray-700 backdrop-blur-xl"
         >
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Sign Up</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Join ParkMy today</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Sign Up
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Join ParkMy today
+            </p>
           </div>
 
           <form onSubmit={handleSignUp} className="space-y-4">
@@ -94,7 +108,10 @@ export const SignUpPage = () => {
                 Full Name
               </label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <User
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
                 <input
                   type="text"
                   name="name"
@@ -113,7 +130,10 @@ export const SignUpPage = () => {
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <Mail
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
                 <input
                   type="email"
                   name="email"
@@ -132,7 +152,10 @@ export const SignUpPage = () => {
                 Phone Number
               </label>
               <div className="relative">
-                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <Phone
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
                 <input
                   type="tel"
                   name="phone"
@@ -151,9 +174,12 @@ export const SignUpPage = () => {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <Lock
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
@@ -177,9 +203,12 @@ export const SignUpPage = () => {
                 Confirm Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <Lock
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
                 <input
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
@@ -192,7 +221,11 @@ export const SignUpPage = () => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
                 </button>
               </div>
             </div>
@@ -200,18 +233,34 @@ export const SignUpPage = () => {
             {/* Error Message */}
             {(localError || authError) && (
               <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                <p className="text-sm text-red-800 dark:text-red-400">{localError || authError}</p>
+                <p className="text-sm text-red-800 dark:text-red-400">
+                  {localError || authError}
+                </p>
               </div>
             )}
 
             {/* Terms & Conditions */}
             <div className="flex items-start gap-2">
-              <input type="checkbox" required className="w-4 h-4 mt-1 rounded border-gray-300 text-brand-primary focus:ring-brand-primary" />
+              <input
+                type="checkbox"
+                required
+                className="w-4 h-4 mt-1 rounded border-gray-300 text-brand-primary focus:ring-brand-primary"
+              />
               <label className="text-xs text-gray-600 dark:text-gray-400">
-                I agree to the{' '}
-                <button type="button" className="text-brand-primary hover:underline">Terms of Service</button>
-                {' '}and{' '}
-                <button type="button" className="text-brand-primary hover:underline">Privacy Policy</button>
+                I agree to the{" "}
+                <button
+                  type="button"
+                  className="text-brand-primary hover:underline"
+                >
+                  Terms of Service
+                </button>{" "}
+                and{" "}
+                <button
+                  type="button"
+                  className="text-brand-primary hover:underline"
+                >
+                  Privacy Policy
+                </button>
               </label>
             </div>
 
@@ -234,8 +283,11 @@ export const SignUpPage = () => {
 
           {/* Login Link */}
           <p className="text-center mt-6 text-sm text-gray-600 dark:text-gray-400">
-            Already have an account?{' '}
-            <Link to="/login" className="text-brand-primary font-semibold hover:underline">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-brand-primary font-semibold hover:underline"
+            >
               Sign in
             </Link>
           </p>

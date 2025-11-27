@@ -1,25 +1,30 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface ISlot extends Document {
-  status: string;
-  type: string;
-  identifier: string; // e.g., A1, A2
+export interface IParkingSlot extends Document {
+  number: string;
+  type: "standard" | "ev" | "disabled";
+  status: "available" | "occupied" | "reserved";
+  pricePerHour: number;
+  location: string;
 }
 
-const SlotSchema: Schema = new Schema({
-  identifier: { type: String, required: true, unique: true },
-  status: {
-    type: String,
-    required: true,
-    enum: ["FREE", "OCCUPIED", "RESERVED"],
-    default: "FREE",
+const ParkingSlotSchema: Schema = new Schema(
+  {
+    number: { type: String, required: true, unique: true },
+    type: {
+      type: String,
+      enum: ["standard", "ev", "disabled"],
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["available", "occupied", "reserved"],
+      default: "available",
+    },
+    pricePerHour: { type: Number, required: true },
+    location: { type: String, required: true },
   },
-  type: {
-    type: String,
-    required: true,
-    enum: ["standard", "ev"],
-    default: "standard",
-  },
-});
+  { timestamps: true }
+);
 
-export default mongoose.model<ISlot>("Slot", SlotSchema);
+export default mongoose.model<IParkingSlot>("ParkingSlot", ParkingSlotSchema);
