@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Bell, Lock, User, Globe, Moon, Sun, ChevronRight, LogOut, Edit, Mail, Phone, MapPin, Shield, Camera } from 'lucide-react';
+import { User, ChevronRight, Edit, Bell, Shield, Moon, Globe, Mail, Phone, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -58,7 +58,7 @@ export const ProfilePage = () => {
               <User size={40} />
             </div>
             <button className="absolute bottom-0 right-0 w-8 h-8 bg-white text-brand-primary rounded-full flex items-center justify-center shadow-lg hover:bg-blue-50 transition-colors">
-              <Camera size={14} />
+              <Edit size={14} />
             </button>
           </div>
           <div className="flex-1">

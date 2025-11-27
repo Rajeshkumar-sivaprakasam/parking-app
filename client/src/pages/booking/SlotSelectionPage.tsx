@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { Check, Clock, Car as CarIcon, CreditCard, X, CheckCircle } from 'lucide-react';
+import { Check, Clock, CreditCard, X, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface ParkingSlot {

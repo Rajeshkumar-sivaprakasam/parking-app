@@ -10,6 +10,7 @@ import { VehiclesPage } from '../../pages/vehicles/VehiclesPage';
 import { PaymentsPage } from '../../pages/payments/PaymentsPage';
 import { ProfilePage } from '../../pages/profile/ProfilePage';
 import { EditProfilePage } from '../../pages/profile/EditProfilePage';
+import { ProtectedRoute } from '../../features/auth/ui/ProtectedRoute';
 
 export const router = createBrowserRouter([
   {
@@ -25,36 +26,41 @@ export const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       {
-        path: '/',
-        element: <HomePage />,
-      },
-      {
-        path: '/booking',
-        element: <BookingPage />,
-      },
-      {
-        path: '/booking/slots',
-        element: <SlotSelectionPage />,
-      },
-      {
-        path: '/bookings',
-        element: <BookingsPage />,
-      },
-      {
-        path: '/vehicles',
-        element: <VehiclesPage />,
-      },
-      {
-        path: '/payments',
-        element: <PaymentsPage />,
-      },
-      {
-        path: '/profile',
-        element: <ProfilePage />,
-      },
-      {
-        path: '/profile/edit',
-        element: <EditProfilePage />,
+        element: <ProtectedRoute />,
+        children: [
+          {
+            path: '/',
+            element: <HomePage />,
+          },
+          {
+            path: '/booking',
+            element: <BookingPage />,
+          },
+          {
+            path: '/booking/slots',
+            element: <SlotSelectionPage />,
+          },
+          {
+            path: '/bookings',
+            element: <BookingsPage />,
+          },
+          {
+            path: '/vehicles',
+            element: <VehiclesPage />,
+          },
+          {
+            path: '/payments',
+            element: <PaymentsPage />,
+          },
+          {
+            path: '/profile',
+            element: <ProfilePage />,
+          },
+          {
+            path: '/profile/edit',
+            element: <EditProfilePage />,
+          },
+        ],
       },
     ],
   },

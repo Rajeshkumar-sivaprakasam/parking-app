@@ -3,6 +3,13 @@ import User, { IUser } from "../models/user.model";
 import { sendResponse } from "../utils/response.utils";
 import bcrypt from "bcryptjs";
 import { EncryptionUtils } from "../utils/EncryptionUtils";
+import jwt from "jsonwebtoken";
+
+const generateToken = (id: string, role: string) => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET || "default_secret", {
+    expiresIn: "30d",
+  });
+};
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
@@ -40,7 +47,12 @@ export const createUser = async (req: Request, res: Response) => {
     const userResponse = savedUser.toObject();
     delete userResponse.password;
 
-    sendResponse(res, 201, true, userResponse);
+    const token = generateToken(
+      savedUser._id as unknown as string,
+      savedUser.role
+    );
+
+    sendResponse(res, 201, true, { user: userResponse, token });
   } catch (error) {
     sendResponse(res, 400, false, null, (error as Error).message);
   }
@@ -102,8 +114,8 @@ export const login = async (req: Request, res: Response) => {
     if (!isMatch)
       return sendResponse(res, 401, false, null, "Invalid credentials");
 
-    // In a real app, generate a real token (JWT)
-    const token = "dummy-jwt-token-" + user._id;
+    // Generate real token (JWT)
+    const token = generateToken(user._id as unknown as string, user.role);
 
     const userResponse = user.toObject();
     delete userResponse.password;

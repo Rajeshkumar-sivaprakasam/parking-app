@@ -7,6 +7,11 @@ import {
   deleteUser,
   login,
 } from "../controllers/user.controller";
+import {
+  registerValidation,
+  loginValidation,
+  validateRequest,
+} from "../middleware/validate.middleware";
 
 const router = Router();
 
@@ -80,7 +85,7 @@ router.get("/:id", getUserById);
  *             schema:
  *               $ref: '#/components/schemas/User'
  */
-router.post("/", createUser);
+router.post("/", registerValidation, validateRequest, createUser);
 
 /**
  * @swagger
@@ -157,6 +162,6 @@ router.delete("/:id", deleteUser);
  *       404:
  *         description: User not found
  */
-router.post("/login", login);
+router.post("/login", loginValidation, validateRequest, login);
 
 export default router;
