@@ -11,6 +11,8 @@ const testEndpoints = async () => {
     console.log("\nTesting Users...");
     const newUser = await axios.post(`${API_URL}/users`, {
       name: "Test User",
+      email: "test@example.com",
+      password: "password123",
       role: "user",
       phoneNumber: "+1234567890",
     });

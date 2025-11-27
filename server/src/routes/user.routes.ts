@@ -5,6 +5,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
+  login,
 } from "../controllers/user.controller";
 
 const router = Router();
@@ -132,5 +133,30 @@ router.put("/:id", updateUser);
  *         description: User not found
  */
 router.delete("/:id", deleteUser);
+
+/**
+ * @swagger
+ * /users/login:
+ *   post:
+ *     summary: Login user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       404:
+ *         description: User not found
+ */
+router.post("/login", login);
 
 export default router;

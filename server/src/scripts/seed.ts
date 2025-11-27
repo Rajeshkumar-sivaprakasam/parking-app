@@ -4,6 +4,7 @@ import User from "../models/user.model";
 import Vehicle from "../models/vehicle.model";
 import Slot from "../models/slot.model";
 import Booking from "../models/booking.model";
+import bcrypt from "bcryptjs";
 import { connectDB } from "../config/db";
 
 dotenv.config();
@@ -21,11 +22,38 @@ const seedData = async () => {
     console.log("Cleared existing data.");
 
     // Create Users
-    const users = await User.insertMany([
-      { name: "Admin User", role: "admin", phoneNumber: "1234567890" },
-      { name: "John Doe", role: "user", phoneNumber: "9876543210" },
-      { name: "Jane Smith", role: "user", phoneNumber: "5555555555" },
-    ]);
+    const users = [
+      {
+        name: "Admin User",
+        email: "admin@example.com",
+        password: "password123",
+        role: "admin",
+        phoneNumber: "1234567890",
+      },
+      {
+        name: "John Doe",
+        email: "john@example.com",
+        password: "password123",
+        role: "user",
+        phoneNumber: "9876543210",
+      },
+      {
+        name: "Jane Smith",
+        email: "jane@example.com",
+        password: "password123",
+        role: "user",
+        phoneNumber: "5555555555",
+      },
+    ];
+
+    const createdUsers = [];
+    for (const user of users) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(user.password, salt);
+      const newUser = new User({ ...user, password: hashedPassword });
+      const savedUser = await newUser.save();
+      createdUsers.push(savedUser);
+    }
     console.log("Users seeded.");
 
     // Create Vehicles
@@ -58,12 +86,9 @@ const seedData = async () => {
     console.log("Slots seeded.");
 
     // Create Bookings
-    // Associate bookings with created users, vehicles, and slots
-    // Note: In a real scenario, we'd want to make sure the vehicle belongs to the user, etc.
-    // For this seed, we'll just pick random ones.
     const bookings = await Booking.insertMany([
       {
-        userId: users[1]._id,
+        userId: createdUsers[1]._id,
         vehicleId: vehicles[0]._id,
         slotId: slots[1]._id, // A2 is OCCUPIED
         startTime: new Date(),
@@ -71,7 +96,7 @@ const seedData = async () => {
         status: "active",
       },
       {
-        userId: users[2]._id,
+        userId: createdUsers[2]._id,
         vehicleId: vehicles[2]._id,
         slotId: slots[3]._id, // B2 is RESERVED
         startTime: new Date(new Date().getTime() + 24 * 60 * 60 * 1000), // Tomorrow

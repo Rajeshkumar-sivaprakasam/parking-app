@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { setCredentials } from '../../features/auth/model/authSlice';
+import { registerUser } from '../../features/auth/model/authSlice';
 import { Mail, Lock, Eye, EyeOff, User, Phone, UserPlus } from 'lucide-react';
+import type { AppDispatch, RootState } from '../../app/providers/store';
+import { useSelector } from 'react-redux';
 
 export const SignUpPage = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
@@ -19,8 +21,9 @@ export const SignUpPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  
+  const { loading, error: authError } = useSelector((state: RootState) => state.auth);
+  const [localError, setLocalError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -31,37 +34,28 @@ export const SignUpPage = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setLocalError('');
 
-    // Validation
+    if (!formData.name || !formData.email || !formData.phone || !formData.password) {
+      setLocalError('Please fill in all required fields');
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setLocalError('Passwords do not match');
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-
-    setIsLoading(true);
-
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // Auto login after signup
-    dispatch(setCredentials({
-      user: {
-        id: Date.now().toString(),
-        name: formData.name,
-        role: 'user',
-        phoneNumber: formData.phone
-      },
-      token: 'mock-jwt-token'
+    const resultAction = await dispatch(registerUser({
+      name: formData.name,
+      email: formData.email,
+      phoneNumber: formData.phone,
+      password: formData.password
     }));
-    
-    navigate('/');
-    setIsLoading(false);
+
+    if (registerUser.fulfilled.match(resultAction)) {
+      navigate('/login');
+    }
   };
 
   return (
@@ -204,9 +198,9 @@ export const SignUpPage = () => {
             </div>
 
             {/* Error Message */}
-            {error && (
+            {(localError || authError) && (
               <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                <p className="text-sm text-red-800 dark:text-red-400">{error}</p>
+                <p className="text-sm text-red-800 dark:text-red-400">{localError || authError}</p>
               </div>
             )}
 
@@ -224,10 +218,10 @@ export const SignUpPage = () => {
             {/* Sign Up Button */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={loading}
               className="w-full bg-brand-primary text-white py-3.5 rounded-xl font-semibold shadow-lg shadow-brand-primary/30 hover:bg-blue-600 hover:shadow-brand-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
             >
-              {isLoading ? (
+              {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>

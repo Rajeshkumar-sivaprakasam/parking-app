@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import User, { IUser } from "../models/user.model";
 import { sendResponse } from "../utils/response.utils";
+import bcrypt from "bcryptjs";
+import { EncryptionUtils } from "../utils/EncryptionUtils";
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
@@ -23,9 +25,22 @@ export const getUserById = async (req: Request, res: Response) => {
 
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const newUser: IUser = new User(req.body);
+    const { password, ...rest } = req.body;
+
+    // Decrypt password
+    const decryptedPassword = EncryptionUtils.decrypt(password);
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(decryptedPassword, salt);
+
+    const newUser: IUser = new User({ ...rest, password: hashedPassword });
     const savedUser = await newUser.save();
-    sendResponse(res, 201, true, savedUser);
+
+    // Don't send password back
+    const userResponse = savedUser.toObject();
+    delete userResponse.password;
+
+    sendResponse(res, 201, true, userResponse);
   } catch (error) {
     sendResponse(res, 400, false, null, (error as Error).message);
   }
@@ -33,12 +48,28 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
+    const updates = { ...req.body };
+
+    if (updates.password) {
+      // Decrypt password
+      const decryptedPassword = EncryptionUtils.decrypt(updates.password);
+
+      const salt = await bcrypt.genSalt(10);
+      updates.password = await bcrypt.hash(decryptedPassword, salt);
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, updates, {
       new: true,
     });
+
     if (!updatedUser)
       return sendResponse(res, 404, false, null, "User not found");
-    sendResponse(res, 200, true, updatedUser);
+
+    // Don't send password back
+    const userResponse = updatedUser.toObject();
+    delete userResponse.password;
+
+    sendResponse(res, 200, true, userResponse);
   } catch (error) {
     sendResponse(res, 400, false, null, (error as Error).message);
   }
@@ -50,6 +81,34 @@ export const deleteUser = async (req: Request, res: Response) => {
     if (!deletedUser)
       return sendResponse(res, 404, false, null, "User not found");
     sendResponse(res, 200, true, null, "User deleted successfully");
+  } catch (error) {
+    sendResponse(res, 500, false, null, (error as Error).message);
+  }
+};
+
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return sendResponse(res, 404, false, null, "User not found");
+
+    // Decrypt password from payload
+    const decryptedPassword = EncryptionUtils.decrypt(password);
+
+    const isMatch = await bcrypt.compare(
+      decryptedPassword,
+      user.password || ""
+    );
+    if (!isMatch)
+      return sendResponse(res, 401, false, null, "Invalid credentials");
+
+    // In a real app, generate a real token (JWT)
+    const token = "dummy-jwt-token-" + user._id;
+
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    sendResponse(res, 200, true, { user: userResponse, token });
   } catch (error) {
     sendResponse(res, 500, false, null, (error as Error).message);
   }

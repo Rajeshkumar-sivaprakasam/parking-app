@@ -1,46 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { setCredentials } from '../../features/auth/model/authSlice';
+import { loginUser } from '../../features/auth/model/authSlice';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
+import type { AppDispatch, RootState } from '../../app/providers/store';
+import { useSelector } from 'react-redux';
 
 export const LoginPage = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  
+  const { loading, error: authError, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const [localError, setLocalError] = useState('');
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
+    setLocalError('');
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Mock validation - accept any email/password for demo
-    if (email && password) {
-      dispatch(setCredentials({
-        user: {
-          id: '1',
-          name: email.split('@')[0],
-          role: 'user',
-          phoneNumber: '+60123456789'
-        },
-        token: 'mock-jwt-token'
-      }));
-      navigate('/');
-    } else {
-      setError('Please enter both email and password');
+    if (!email || !password) {
+      setLocalError('Please enter both email and password');
+      return;
     }
-    
-    setIsLoading(false);
+
+    dispatch(loginUser({ email, password }));
   };
 
   return (
@@ -117,9 +111,9 @@ export const LoginPage = () => {
             </div>
 
             {/* Error Message */}
-            {error && (
+            {(localError || authError) && (
               <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                <p className="text-sm text-red-800 dark:text-red-400">{error}</p>
+                <p className="text-sm text-red-800 dark:text-red-400">{localError || authError}</p>
               </div>
             )}
 
@@ -137,10 +131,10 @@ export const LoginPage = () => {
             {/* Login Button */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={loading}
               className="w-full bg-brand-primary text-white py-3.5 rounded-xl font-semibold shadow-lg shadow-brand-primary/30 hover:bg-blue-600 hover:shadow-brand-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
             >
-              {isLoading ? (
+              {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>

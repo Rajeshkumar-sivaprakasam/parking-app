@@ -3,6 +3,8 @@ import {
   createEntityAdapter,
   createAsyncThunk,
 } from "@reduxjs/toolkit";
+import axiosInstance from "../../../api/axiosInstance";
+import { API_ENDPOINTS } from "../../../api/apiendpoints";
 
 export interface Vehicle {
   id: string;
@@ -21,8 +23,8 @@ const initialState = vehiclesAdapter.getInitialState({
 export const fetchVehicles = createAsyncThunk(
   "vehicles/fetchVehicles",
   async () => {
-    const response = await fetch("http://localhost:3000/vehicles");
-    return (await response.json()) as Vehicle[];
+    const response = await axiosInstance.get(API_ENDPOINTS.vehicles.getAll);
+    return response.data.data as Vehicle[]; // Assuming backend returns { success: true, data: [...] }
   }
 );
 

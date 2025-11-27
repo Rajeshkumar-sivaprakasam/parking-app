@@ -3,6 +3,8 @@ import {
   createAsyncThunk,
   type PayloadAction,
 } from "@reduxjs/toolkit";
+import axiosInstance from "../../../api/axiosInstance";
+import { API_ENDPOINTS } from "../../../api/apiendpoints";
 
 // Types
 export interface Booking {
@@ -27,13 +29,11 @@ export const createBooking = createAsyncThunk(
   "booking/create",
   async (bookingData: Partial<Booking>, { rejectWithValue }) => {
     try {
-      const response = await fetch("http://localhost:3000/bookings", {
-        method: "POST",
-        body: JSON.stringify(bookingData),
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!response.ok) throw new Error("Booking failed");
-      return await response.json();
+      const response = await axiosInstance.post(
+        API_ENDPOINTS.bookings.create,
+        bookingData
+      );
+      return response.data.data; // Assuming backend returns { success: true, data: ... }
     } catch (err: any) {
       return rejectWithValue(err.message);
     }
