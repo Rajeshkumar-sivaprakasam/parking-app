@@ -11,9 +11,148 @@ const router = express.Router();
 
 router.use(protect); // Protect all booking routes
 
+/**
+ * @swagger
+ * tags:
+ *   name: Bookings
+ *   description: Booking management API
+ */
+
+/**
+ * @swagger
+ * /bookings:
+ *   get:
+ *     summary: Get all bookings for the authenticated user
+ *     tags: [Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of bookings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Booking'
+ */
 router.get("/", getBookings);
+
+/**
+ * @swagger
+ * /bookings:
+ *   post:
+ *     summary: Create a new booking
+ *     tags: [Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - slotId
+ *               - vehicleId
+ *               - startTime
+ *               - endTime
+ *               - totalAmount
+ *             properties:
+ *               slotId:
+ *                 type: string
+ *               vehicleId:
+ *                 type: string
+ *               startTime:
+ *                 type: string
+ *                 format: date-time
+ *               endTime:
+ *                 type: string
+ *                 format: date-time
+ *               totalAmount:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: Booking created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Booking'
+ *       400:
+ *         description: Bad request or slot not available
+ */
 router.post("/", createBooking);
+
+/**
+ * @swagger
+ * /bookings/{id}/cancel:
+ *   post:
+ *     summary: Cancel a booking
+ *     tags: [Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Booking ID
+ *     responses:
+ *       200:
+ *         description: Booking cancelled successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Booking'
+ *       404:
+ *         description: Booking not found
+ */
 router.post("/:id/cancel", cancelBooking);
+
+/**
+ * @swagger
+ * /bookings/{id}/extend:
+ *   post:
+ *     summary: Extend a booking
+ *     tags: [Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Booking ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - duration
+ *               - additionalAmount
+ *             properties:
+ *               duration:
+ *                 type: number
+ *                 description: Duration in hours to extend
+ *               additionalAmount:
+ *                 type: number
+ *                 description: Additional cost
+ *     responses:
+ *       200:
+ *         description: Booking extended successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Booking'
+ *       400:
+ *         description: Cannot extend booking
+ *       404:
+ *         description: Booking not found
+ */
 router.post("/:id/extend", extendBooking);
 
 export default router;

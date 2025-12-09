@@ -144,7 +144,7 @@ export const BookingsPage = () => {
                 </div>
                 <div className="text-right">
                   <p className="text-2xl font-bold text-brand-primary">
-                    RM {booking.totalAmount.toFixed(2)}
+                    RM {booking.totalAmount?.toFixed(2)}
                   </p>
                   <p className="text-xs text-gray-500">
                     Booking ID: {booking._id.slice(-6).toUpperCase()}
@@ -298,7 +298,7 @@ export const BookingsPage = () => {
                 onClick={handleExtendBooking}
                 className="px-4 py-2 bg-brand-primary text-white rounded-lg font-semibold hover:bg-blue-600"
               >
-                Pay RM {(extendHours * 5).toFixed(2)}
+                Pay RM {(extendHours * 5)?.toFixed(2)}
               </button>
             </div>
           </div>

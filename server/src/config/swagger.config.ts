@@ -15,6 +15,13 @@ const options = {
       },
     ],
     components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
       schemas: {
         User: {
           type: "object",
@@ -33,9 +40,11 @@ const options = {
           properties: {
             _id: { type: "string" },
             userId: { type: "string" },
-            vehicleNumber: { type: "string" },
-            vehicleType: { type: "string", enum: ["car", "bike"] },
+            plateNumber: { type: "string" },
+            make: { type: "string" },
             vehicleModel: { type: "string" },
+            color: { type: "string" },
+            isDefault: { type: "boolean" },
             createdAt: { type: "string", format: "date-time" },
             updatedAt: { type: "string", format: "date-time" },
           },
@@ -44,9 +53,14 @@ const options = {
           type: "object",
           properties: {
             _id: { type: "string" },
-            slotNumber: { type: "string" },
-            isBooked: { type: "boolean" },
-            price: { type: "number" },
+            number: { type: "string" },
+            type: { type: "string", enum: ["standard", "ev", "disabled"] },
+            status: {
+              type: "string",
+              enum: ["available", "occupied", "reserved"],
+            },
+            pricePerHour: { type: "number" },
+            location: { type: "string" },
             createdAt: { type: "string", format: "date-time" },
             updatedAt: { type: "string", format: "date-time" },
           },
@@ -60,10 +74,14 @@ const options = {
             slotId: { type: "string" },
             startTime: { type: "string", format: "date-time" },
             endTime: { type: "string", format: "date-time" },
-            totalPrice: { type: "number" },
+            totalAmount: { type: "number" },
             status: {
               type: "string",
-              enum: ["pending", "confirmed", "cancelled"],
+              enum: ["active", "upcoming", "completed", "cancelled"],
+            },
+            paymentStatus: {
+              type: "string",
+              enum: ["pending", "paid", "refunded"],
             },
             createdAt: { type: "string", format: "date-time" },
             updatedAt: { type: "string", format: "date-time" },

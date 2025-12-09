@@ -13,11 +13,16 @@ export const getVehicles = async (req: Request, res: Response) => {
 
 export const addVehicle = async (req: Request, res: Response) => {
   try {
+    console.log("Adding vehicle - Body:", req.body);
+    console.log("Adding vehicle - User:", (req as any).user);
+
     const { plateNumber, make, vehicleModel, color, isDefault } = req.body;
     const userId = (req as any).user.id;
 
     // Check if vehicle already exists
     const existingVehicle = await Vehicle.findOne({ plateNumber });
+    console.log("🚀 ~ addVehicle ~ plateNumber:", plateNumber);
+    console.log("🚀 ~ addVehicle ~ existingVehicle:", existingVehicle);
     if (existingVehicle) {
       return sendResponse(
         res,
@@ -45,6 +50,7 @@ export const addVehicle = async (req: Request, res: Response) => {
     const savedVehicle = await newVehicle.save();
     sendResponse(res, 201, true, savedVehicle);
   } catch (error) {
+    console.error("Error adding vehicle:", error);
     sendResponse(res, 400, false, null, (error as Error).message);
   }
 };

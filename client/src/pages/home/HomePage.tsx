@@ -138,13 +138,13 @@ export const HomePage = () => {
         {[
           {
             title: "Total Spent",
-            value: `RM ${totalSpent.toFixed(2)}`,
+            value: `RM ${totalSpent?.toFixed(2)}`,
             icon: Wallet,
             color: "bg-emerald-500",
           },
           {
             title: t("dashboard.totalHours"),
-            value: `${totalHours.toFixed(1)} hrs`,
+            value: `${totalHours?.toFixed(1)} hrs`,
             icon: Clock,
             color: "bg-orange-500",
           },
@@ -284,7 +284,7 @@ export const HomePage = () => {
                       (new Date(booking.endTime).getTime() -
                         new Date(booking.startTime).getTime()) /
                       (1000 * 60 * 60)
-                    ).toFixed(1)}{" "}
+                    )?.toFixed(1)}{" "}
                     {t("dashboard.hours")}
                   </p>
                 </div>

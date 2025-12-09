@@ -88,7 +88,7 @@ export const PaymentsPage = () => {
               <div>
                 <p className="text-blue-100 text-sm mb-1">Total Spent</p>
                 <h3 className="text-4xl font-bold">
-                  RM {totalSpent.toFixed(2)}
+                  RM {totalSpent?.toFixed(2)}
                 </h3>
               </div>
               <Wallet size={40} className="text-white/80" />
@@ -129,7 +129,7 @@ export const PaymentsPage = () => {
                   Avg. Cost
                 </p>
                 <p className="text-xl font-bold text-gray-900 dark:text-white">
-                  RM {avgCost.toFixed(2)}
+                  RM {avgCost?.toFixed(2)}
                 </p>
               </div>
             </div>
