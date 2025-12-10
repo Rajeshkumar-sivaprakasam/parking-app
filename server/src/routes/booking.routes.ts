@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getBookings,
+  getAllBookings,
   createBooking,
   cancelBooking,
   extendBooking,
@@ -37,6 +38,7 @@ router.use(protect); // Protect all booking routes
  *                 $ref: '#/components/schemas/Booking'
  */
 router.get("/", getBookings);
+router.get("/all", getAllBookings);
 
 /**
  * @swagger

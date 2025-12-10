@@ -101,6 +101,8 @@ export const deleteUser = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
+    console.log("Login attempt for:", email);
+    console.log("Received password (encrypted):", password);
     const user = await User.findOne({ email });
     if (!user) return sendResponse(res, 404, false, null, "User not found");
 

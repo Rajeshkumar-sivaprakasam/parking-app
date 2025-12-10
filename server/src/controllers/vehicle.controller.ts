@@ -2,9 +2,19 @@ import { Request, Response } from "express";
 import Vehicle, { IVehicle } from "../models/vehicle.model";
 import { sendResponse } from "../utils/response.utils";
 
+// ...
 export const getVehicles = async (req: Request, res: Response) => {
   try {
     const vehicles = await Vehicle.find({ userId: (req as any).user.id });
+    sendResponse(res, 200, true, vehicles);
+  } catch (error) {
+    sendResponse(res, 500, false, null, (error as Error).message);
+  }
+};
+
+export const getAllVehicles = async (req: Request, res: Response) => {
+  try {
+    const vehicles = await Vehicle.find({}).populate("userId", "name email");
     sendResponse(res, 200, true, vehicles);
   } catch (error) {
     sendResponse(res, 500, false, null, (error as Error).message);

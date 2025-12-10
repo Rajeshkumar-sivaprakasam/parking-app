@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getVehicles,
+  getAllVehicles,
   addVehicle,
   updateVehicle,
   deleteVehicle,
@@ -37,6 +38,7 @@ router.use(protect); // Protect all vehicle routes
  *                 $ref: '#/components/schemas/Vehicle'
  */
 router.get("/", getVehicles);
+router.get("/all", getAllVehicles);
 
 /**
  * @swagger

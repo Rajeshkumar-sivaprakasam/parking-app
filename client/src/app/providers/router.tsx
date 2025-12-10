@@ -1,64 +1,69 @@
-import { createBrowserRouter } from 'react-router-dom';
-import { HomePage } from '../../pages/home/HomePage';
-import { LoginPage } from '../../pages/auth/LoginPage';
-import { SignUpPage } from '../../pages/auth/SignUpPage';
-import { BookingPage } from '../../pages/booking/BookingPage';
-import { SlotSelectionPage } from '../../pages/booking/SlotSelectionPage';
-import { BookingsPage } from '../../pages/bookings/BookingsPage';
-import { MainLayout } from '../../shared/ui/MainLayout';
-import { VehiclesPage } from '../../pages/vehicles/VehiclesPage';
-import { PaymentsPage } from '../../pages/payments/PaymentsPage';
-import { ProfilePage } from '../../pages/profile/ProfilePage';
-import { EditProfilePage } from '../../pages/profile/EditProfilePage';
-import { ProtectedRoute } from '../../features/auth/ui/ProtectedRoute';
+import { createBrowserRouter } from "react-router-dom";
+import { HomePage } from "../../pages/home/HomePage";
+import { LoginPage } from "../../pages/auth/LoginPage";
+import { SignUpPage } from "../../pages/auth/SignUpPage";
+import { BookingPage } from "../../pages/booking/BookingPage";
+import { SlotSelectionPage } from "../../pages/booking/SlotSelectionPage";
+import { BookingsPage } from "../../pages/bookings/BookingsPage";
+import { MainLayout } from "../../shared/ui/MainLayout";
+import { VehiclesPage } from "../../pages/vehicles/VehiclesPage";
+import { PaymentsPage } from "../../pages/payments/PaymentsPage";
+import { ProfilePage } from "../../pages/profile/ProfilePage";
+import { EditProfilePage } from "../../pages/profile/EditProfilePage";
+import { ProtectedRoute } from "../../features/auth/ui/ProtectedRoute";
+import { AdminRecordsPage } from "../../pages/admin/AdminRecordsPage";
 
 export const router = createBrowserRouter([
   {
-    path: '/login',
+    path: "/login",
     element: <LoginPage />,
   },
   {
-    path: '/signup',
+    path: "/signup",
     element: <SignUpPage />,
   },
   {
-    path: '/',
+    path: "/",
     element: <MainLayout />,
     children: [
       {
         element: <ProtectedRoute />,
         children: [
           {
-            path: '/',
+            path: "/",
             element: <HomePage />,
           },
           {
-            path: '/booking',
+            path: "/booking",
             element: <BookingPage />,
           },
           {
-            path: '/booking/slots',
+            path: "/booking/slots",
             element: <SlotSelectionPage />,
           },
           {
-            path: '/bookings',
+            path: "/bookings",
             element: <BookingsPage />,
           },
           {
-            path: '/vehicles',
+            path: "/vehicles",
             element: <VehiclesPage />,
           },
           {
-            path: '/payments',
+            path: "/payments",
             element: <PaymentsPage />,
           },
           {
-            path: '/profile',
+            path: "/profile",
             element: <ProfilePage />,
           },
           {
-            path: '/profile/edit',
+            path: "/profile/edit",
             element: <EditProfilePage />,
+          },
+          {
+            path: "/admin",
+            element: <AdminRecordsPage />,
           },
         ],
       },

@@ -10,12 +10,14 @@ export const API_ENDPOINTS = {
   },
   vehicles: {
     getAll: "/vehicles",
+    getAllAdmin: "/vehicles/all",
     add: "/vehicles",
     update: (id: string) => `/vehicles/${id}`,
     delete: (id: string) => `/vehicles/${id}`,
   },
   bookings: {
     getAll: "/bookings",
+    getAllAdmin: "/bookings/all",
     create: "/bookings",
     cancel: (id: string) => `/bookings/${id}/cancel`,
     extend: (id: string) => `/bookings/${id}/extend`,
@@ -23,7 +25,7 @@ export const API_ENDPOINTS = {
     update: (id: string) => `/bookings/${id}`,
   },
   parkingSlots: {
-    getAll: "/parking-slots",
-    update: (id: string) => `/parking-slots/${id}`,
+    getAll: "/slots",
+    update: (id: string) => `/slots/${id}`,
   },
 };

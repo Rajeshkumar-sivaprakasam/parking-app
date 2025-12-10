@@ -1,6 +1,13 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { Check, Clock, CreditCard, X, CheckCircle } from "lucide-react";
+import {
+  Check,
+  Clock,
+  CreditCard,
+  X,
+  CheckCircle,
+  Calendar,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   parkingService,
@@ -20,6 +27,18 @@ export const SlotSelectionPage = () => {
 
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [duration, setDuration] = useState(2);
+
+  // Initialize with local current time formatted for datetime-local (YYYY-MM-DDTHH:mm)
+  const [startTime, setStartTime] = useState(() => {
+    const now = new Date();
+    // Offset for local timezone
+    const offset = now.getTimezoneOffset() * 60000;
+    const localIso = new Date(now.getTime() - offset)
+      .toISOString()
+      .slice(0, 16);
+    return localIso;
+  });
+
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -28,26 +47,46 @@ export const SlotSelectionPage = () => {
   const pricePerHour = 5;
   const totalPrice = duration * pricePerHour;
 
+  // Fetch Vehicles on Mount
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchVehicles = async () => {
       try {
-        const [slotsData, vehiclesData] = await Promise.all([
-          parkingService.getSlots(),
-          vehicleService.getVehicles(),
-        ]);
-        setSlots(slotsData);
+        const vehiclesData = await vehicleService.getVehicles();
         setVehicles(vehiclesData);
         if (vehiclesData.length > 0) {
           setSelectedVehicle(vehiclesData[0]._id);
         }
       } catch (error) {
-        console.error("Failed to fetch data:", error);
+        console.error("Failed to fetch vehicles:", error);
+      }
+    };
+    fetchVehicles();
+  }, []);
+
+  // Fetch Slots when time or duration changes
+  useEffect(() => {
+    const fetchSlots = async () => {
+      setLoading(true);
+      try {
+        // Send as UTC string
+        const utcStartTime = new Date(startTime).toISOString();
+        const slotsData = await parkingService.getSlots(
+          undefined,
+          utcStartTime,
+          duration
+        );
+        setSlots(slotsData);
+      } catch (error) {
+        console.error("Failed to fetch slots:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
-  }, []);
+
+    // Debounce slightly to avoid rapid calls
+    const timeout = setTimeout(fetchSlots, 300);
+    return () => clearTimeout(timeout);
+  }, [startTime, duration]);
 
   const getSlotColor = (slot: ParkingSlot) => {
     if (slot._id === selectedSlot)
@@ -78,7 +117,7 @@ export const SlotSelectionPage = () => {
       await bookingService.createBooking({
         slotId: selectedSlot,
         vehicleId: selectedVehicle,
-        startTime: new Date().toISOString(),
+        startTime: new Date(startTime).toISOString(), // Convert local input to UTC
         duration,
         totalAmount: totalPrice,
       });
@@ -89,17 +128,15 @@ export const SlotSelectionPage = () => {
       setTimeout(() => {
         navigate("/bookings");
       }, 2000);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Booking failed:", error);
-      alert("Booking failed. Please try again.");
+      const msg =
+        error.response?.data?.message || "Booking failed. Please try again.";
+      alert(msg);
     } finally {
       setIsProcessing(false);
     }
   };
-
-  if (loading) {
-    return <div className="text-center py-10">Loading slots...</div>;
-  }
 
   return (
     <div className="space-y-6">
@@ -116,6 +153,40 @@ export const SlotSelectionPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Slot Grid */}
         <div className="lg:col-span-2">
+          {/* Time Controls */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 mb-6 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-wrap gap-6 items-center">
+            <div className="flex-1 min-w-[200px]">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block flex items-center gap-2">
+                <Calendar size={16} />
+                Start Time
+              </label>
+              <input
+                type="datetime-local"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-brand-primary outline-none text-gray-900 dark:text-white"
+              />
+            </div>
+            <div className="flex-1 min-w-[200px]">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block flex items-center gap-2">
+                <Clock size={16} />
+                Duration: {duration} hours
+              </label>
+              <input
+                type="range"
+                min="1"
+                max="12"
+                value={duration}
+                onChange={(e) => setDuration(Number(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-brand-primary"
+              />
+              <div className="flex justify-between text-xs text-gray-400 mt-2">
+                <span>1h</span>
+                <span>12h</span>
+              </div>
+            </div>
+          </div>
+
           <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-gray-700">
             {/* Legend */}
             <div className="flex flex-wrap gap-4 mb-6 pb-6 border-b border-gray-100 dark:border-gray-700">
@@ -146,31 +217,39 @@ export const SlotSelectionPage = () => {
             </div>
 
             {/* Slots Grid */}
-            <div className="grid grid-cols-5 sm:grid-cols-8 gap-3">
-              {slots.map((slot) => (
-                <motion.button
-                  key={slot._id}
-                  whileHover={
-                    slot.status === "available" ? { scale: 1.05 } : {}
-                  }
-                  whileTap={slot.status === "available" ? { scale: 0.95 } : {}}
-                  onClick={() =>
-                    slot.status === "available" && setSelectedSlot(slot._id)
-                  }
-                  disabled={slot.status !== "available"}
-                  className={`aspect-square rounded-xl border-2 font-bold text-sm flex items-center justify-center transition-all relative ${getSlotColor(
-                    slot
-                  )}`}
-                >
-                  {slot.number}
-                  {slot._id === selectedSlot && (
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center">
-                      <Check size={12} className="text-brand-primary" />
-                    </div>
-                  )}
-                </motion.button>
-              ))}
-            </div>
+            {loading ? (
+              <div className="h-64 flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-5 sm:grid-cols-8 gap-3">
+                {slots.map((slot) => (
+                  <motion.button
+                    key={slot._id}
+                    whileHover={
+                      slot.status === "available" ? { scale: 1.05 } : {}
+                    }
+                    whileTap={
+                      slot.status === "available" ? { scale: 0.95 } : {}
+                    }
+                    onClick={() =>
+                      slot.status === "available" && setSelectedSlot(slot._id)
+                    }
+                    disabled={slot.status !== "available"}
+                    className={`aspect-square rounded-xl border-2 font-bold text-sm flex items-center justify-center transition-all relative ${getSlotColor(
+                      slot
+                    )}`}
+                  >
+                    {slot.number}
+                    {slot._id === selectedSlot && (
+                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                        <Check size={12} className="text-brand-primary" />
+                      </div>
+                    )}
+                  </motion.button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -182,6 +261,21 @@ export const SlotSelectionPage = () => {
             </h3>
 
             <div className="space-y-4">
+              {/* Selected Time */}
+              <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                  Time
+                </p>
+                <p className="font-semibold text-gray-900 dark:text-white">
+                  {new Date(startTime).toLocaleString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
+
               {/* Selected Slot */}
               <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -222,29 +316,6 @@ export const SlotSelectionPage = () => {
                     </button>
                   </div>
                 )}
-              </div>
-
-              {/* Duration */}
-              <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block flex items-center gap-2">
-                  <Clock size={16} />
-                  Duration (Hours)
-                </label>
-                <input
-                  type="range"
-                  min="1"
-                  max="12"
-                  value={duration}
-                  onChange={(e) => setDuration(Number(e.target.value))}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  <span>1h</span>
-                  <span className="font-bold text-brand-primary">
-                    {duration}h
-                  </span>
-                  <span>12h</span>
-                </div>
               </div>
 
               {/* Price Breakdown */}
@@ -334,6 +405,19 @@ export const SlotSelectionPage = () => {
                         </span>
                         <span className="font-semibold text-gray-900 dark:text-white">
                           {slots.find((s) => s._id === selectedSlot)?.number}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Time:
+                        </span>
+                        <span className="font-semibold text-gray-900 dark:text-white">
+                          {new Date(startTime).toLocaleString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })}
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">

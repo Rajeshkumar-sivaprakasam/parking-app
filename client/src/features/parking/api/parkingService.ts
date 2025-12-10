@@ -11,8 +11,12 @@ export interface ParkingSlot {
 }
 
 export const parkingService = {
-  getSlots: async (status?: string) => {
-    const params = status ? { status } : {};
+  getSlots: async (status?: string, startTime?: string, duration?: number) => {
+    const params: any = {};
+    if (status) params.status = status;
+    if (startTime) params.startTime = startTime;
+    if (duration) params.duration = duration;
+
     const response = await axiosInstance.get(
       API_ENDPOINTS.parkingSlots.getAll,
       {

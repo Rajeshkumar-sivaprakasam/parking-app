@@ -18,6 +18,13 @@ export const bookingService = {
     return response.data.data;
   },
 
+  getAllBookings: async () => {
+    const response = await axiosInstance.get(
+      API_ENDPOINTS.bookings.getAllAdmin
+    );
+    return response.data.data;
+  },
+
   createBooking: async (bookingData: any) => {
     const response = await axiosInstance.post(
       API_ENDPOINTS.bookings.create,

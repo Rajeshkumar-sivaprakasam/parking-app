@@ -16,6 +16,13 @@ export const vehicleService = {
     return response.data.data;
   },
 
+  getAllVehicles: async () => {
+    const response = await axiosInstance.get(
+      API_ENDPOINTS.vehicles.getAllAdmin
+    );
+    return response.data.data;
+  },
+
   addVehicle: async (vehicleData: Omit<Vehicle, "_id">) => {
     const response = await axiosInstance.post(
       API_ENDPOINTS.vehicles.add,
