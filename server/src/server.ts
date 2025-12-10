@@ -7,7 +7,14 @@ dotenv.config();
 const PORT = process.env.PORT || 5000;
 
 // Connect to Database
-connectDB();
+import { initializeParkingSlots } from "./utils/bootstrap.utils";
+
+// ...
+
+// Connect to Database and Initialize
+connectDB().then(() => {
+  initializeParkingSlots();
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
