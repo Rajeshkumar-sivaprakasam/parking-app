@@ -27,4 +27,9 @@ const ParkingSlotSchema: Schema = new Schema(
   { timestamps: true }
 );
 
+// Performance indexes for frequently queried fields
+ParkingSlotSchema.index({ status: 1 }); // Filter by availability
+ParkingSlotSchema.index({ type: 1 }); // Filter by slot type
+ParkingSlotSchema.index({ status: 1, type: 1 }); // Combined filter
+
 export default mongoose.model<IParkingSlot>("ParkingSlot", ParkingSlotSchema);

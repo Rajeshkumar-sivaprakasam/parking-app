@@ -16,4 +16,7 @@ const UserSchema: Schema = new Schema({
   phoneNumber: { type: String, required: true },
 });
 
+// Performance index for role-based queries
+UserSchema.index({ role: 1 });
+
 export default mongoose.model<IUser>("User", UserSchema);

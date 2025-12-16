@@ -13,7 +13,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../app/providers/store";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   bookingService,
   type Booking,
@@ -39,39 +39,58 @@ export const HomePage = () => {
     fetchBookings();
   }, []);
 
-  // Calculate stats
-  const activeBooking = bookings.find((b) => b.status === "active");
-  const totalSpent = bookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
-  const totalHours = bookings.reduce((sum, b) => {
-    const start = new Date(b.startTime).getTime();
-    const end = new Date(b.endTime).getTime();
-    return sum + (end - start) / (1000 * 60 * 60);
-  }, 0);
+  // Memoize expensive calculations to avoid recalculation on every render
+  const activeBooking = useMemo(
+    () => bookings.find((b) => b.status === "active"),
+    [bookings]
+  );
+
+  const totalSpent = useMemo(
+    () => bookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0),
+    [bookings]
+  );
+
+  const totalHours = useMemo(
+    () =>
+      bookings.reduce((sum, b) => {
+        const start = new Date(b.startTime).getTime();
+        const end = new Date(b.endTime).getTime();
+        return sum + (end - start) / (1000 * 60 * 60);
+      }, 0),
+    [bookings]
+  );
 
   // Get favorite spot (most frequent)
-  const spotCounts = bookings.reduce((acc, b) => {
-    const location = b.slotId?.location || "Unknown"; // Assuming slotId is populated
-    acc[location] = (acc[location] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  const favoriteSpot =
-    Object.entries(spotCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
-
-  // Chart data (last 7 days)
-  const chartData = bookings
-    .reduce((acc, b) => {
-      const date = new Date(b.startTime).toLocaleDateString("en-US", {
-        weekday: "short",
-      });
-      const existing = acc.find((d) => d.name === date);
-      if (existing) {
-        existing.spend += b.totalAmount || 0;
-      } else {
-        acc.push({ name: date, spend: b.totalAmount || 0 });
-      }
+  const favoriteSpot = useMemo(() => {
+    const spotCounts = bookings.reduce((acc, b) => {
+      const location = b.slotId?.location || "Unknown";
+      acc[location] = (acc[location] || 0) + 1;
       return acc;
-    }, [] as { name: string; spend: number }[])
-    .slice(-7);
+    }, {} as Record<string, number>);
+    return (
+      Object.entries(spotCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A"
+    );
+  }, [bookings]);
+
+  // Chart data (last 7 days) - memoized for performance
+  const chartData = useMemo(
+    () =>
+      bookings
+        .reduce((acc, b) => {
+          const date = new Date(b.startTime).toLocaleDateString("en-US", {
+            weekday: "short",
+          });
+          const existing = acc.find((d) => d.name === date);
+          if (existing) {
+            existing.spend += b.totalAmount || 0;
+          } else {
+            acc.push({ name: date, spend: b.totalAmount || 0 });
+          }
+          return acc;
+        }, [] as { name: string; spend: number }[])
+        .slice(-7),
+    [bookings]
+  );
 
   if (loading) {
     return (

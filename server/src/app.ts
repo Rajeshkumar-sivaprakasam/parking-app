@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import compression from "compression";
 import { errorHandler } from "./middleware/error.middleware";
 import swaggerUi from "swagger-ui-express";
 import { specs } from "./config/swagger.config";
@@ -12,6 +13,9 @@ import xss from "xss-clean";
 import hpp from "hpp";
 
 const app = express();
+
+// Compression - Enable gzip compression for all responses
+app.use(compression());
 
 // Middleware
 app.use(express.json());

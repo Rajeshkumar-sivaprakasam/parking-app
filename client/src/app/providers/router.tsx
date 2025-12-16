@@ -1,26 +1,81 @@
 import { createBrowserRouter } from "react-router-dom";
-import { HomePage } from "../../pages/home/HomePage";
-import { LoginPage } from "../../pages/auth/LoginPage";
-import { SignUpPage } from "../../pages/auth/SignUpPage";
-import { BookingPage } from "../../pages/booking/BookingPage";
-import { SlotSelectionPage } from "../../pages/booking/SlotSelectionPage";
-import { BookingsPage } from "../../pages/bookings/BookingsPage";
+import { lazy, Suspense } from "react";
 import { MainLayout } from "../../shared/ui/MainLayout";
-import { VehiclesPage } from "../../pages/vehicles/VehiclesPage";
-import { PaymentsPage } from "../../pages/payments/PaymentsPage";
-import { ProfilePage } from "../../pages/profile/ProfilePage";
-import { EditProfilePage } from "../../pages/profile/EditProfilePage";
 import { ProtectedRoute } from "../../features/auth/ui/ProtectedRoute";
-import { AdminRecordsPage } from "../../pages/admin/AdminRecordsPage";
+import { LoadingFallback } from "../../shared/ui/LoadingFallback";
+
+// Lazy load all page components for code splitting
+const HomePage = lazy(() =>
+  import("../../pages/home/HomePage").then((m) => ({ default: m.HomePage }))
+);
+const LoginPage = lazy(() =>
+  import("../../pages/auth/LoginPage").then((m) => ({ default: m.LoginPage }))
+);
+const SignUpPage = lazy(() =>
+  import("../../pages/auth/SignUpPage").then((m) => ({ default: m.SignUpPage }))
+);
+const BookingPage = lazy(() =>
+  import("../../pages/booking/BookingPage").then((m) => ({
+    default: m.BookingPage,
+  }))
+);
+const SlotSelectionPage = lazy(() =>
+  import("../../pages/booking/SlotSelectionPage").then((m) => ({
+    default: m.SlotSelectionPage,
+  }))
+);
+const BookingsPage = lazy(() =>
+  import("../../pages/bookings/BookingsPage").then((m) => ({
+    default: m.BookingsPage,
+  }))
+);
+const VehiclesPage = lazy(() =>
+  import("../../pages/vehicles/VehiclesPage").then((m) => ({
+    default: m.VehiclesPage,
+  }))
+);
+const PaymentsPage = lazy(() =>
+  import("../../pages/payments/PaymentsPage").then((m) => ({
+    default: m.PaymentsPage,
+  }))
+);
+const ProfilePage = lazy(() =>
+  import("../../pages/profile/ProfilePage").then((m) => ({
+    default: m.ProfilePage,
+  }))
+);
+const EditProfilePage = lazy(() =>
+  import("../../pages/profile/EditProfilePage").then((m) => ({
+    default: m.EditProfilePage,
+  }))
+);
+const AdminRecordsPage = lazy(() =>
+  import("../../pages/admin/AdminRecordsPage").then((m) => ({
+    default: m.AdminRecordsPage,
+  }))
+);
+
+// Wrapper component for lazy-loaded routes
+const LazyRoute = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<LoadingFallback />}>{children}</Suspense>
+);
 
 export const router = createBrowserRouter([
   {
     path: "/login",
-    element: <LoginPage />,
+    element: (
+      <LazyRoute>
+        <LoginPage />
+      </LazyRoute>
+    ),
   },
   {
     path: "/signup",
-    element: <SignUpPage />,
+    element: (
+      <LazyRoute>
+        <SignUpPage />
+      </LazyRoute>
+    ),
   },
   {
     path: "/",
@@ -31,39 +86,75 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "/",
-            element: <HomePage />,
+            element: (
+              <LazyRoute>
+                <HomePage />
+              </LazyRoute>
+            ),
           },
           {
             path: "/booking",
-            element: <BookingPage />,
+            element: (
+              <LazyRoute>
+                <BookingPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "/booking/slots",
-            element: <SlotSelectionPage />,
+            element: (
+              <LazyRoute>
+                <SlotSelectionPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "/bookings",
-            element: <BookingsPage />,
+            element: (
+              <LazyRoute>
+                <BookingsPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "/vehicles",
-            element: <VehiclesPage />,
+            element: (
+              <LazyRoute>
+                <VehiclesPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "/payments",
-            element: <PaymentsPage />,
+            element: (
+              <LazyRoute>
+                <PaymentsPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "/profile",
-            element: <ProfilePage />,
+            element: (
+              <LazyRoute>
+                <ProfilePage />
+              </LazyRoute>
+            ),
           },
           {
             path: "/profile/edit",
-            element: <EditProfilePage />,
+            element: (
+              <LazyRoute>
+                <EditProfilePage />
+              </LazyRoute>
+            ),
           },
           {
             path: "/admin",
-            element: <AdminRecordsPage />,
+            element: (
+              <LazyRoute>
+                <AdminRecordsPage />
+              </LazyRoute>
+            ),
           },
         ],
       },

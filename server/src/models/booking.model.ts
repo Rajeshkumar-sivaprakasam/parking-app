@@ -56,4 +56,13 @@ const BookingSchema: Schema = new Schema(
   { timestamps: true }
 );
 
+// Performance indexes for frequently queried fields
+BookingSchema.index({ userId: 1 }); // User's bookings lookup
+BookingSchema.index({ slotId: 1 }); // Slot availability checks
+BookingSchema.index({ status: 1 }); // Status-based queries
+BookingSchema.index({ startTime: 1, endTime: 1 }); // Time range queries
+BookingSchema.index({ userId: 1, status: 1 }); // Compound: user's active bookings
+BookingSchema.index({ slotId: 1, startTime: 1, endTime: 1 }); // Slot time overlap checks
+BookingSchema.index({ createdAt: -1 }); // Recent bookings sorting
+
 export default mongoose.model<IBooking>("Booking", BookingSchema);
