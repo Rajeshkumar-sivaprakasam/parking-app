@@ -7,9 +7,19 @@ export interface IBooking extends Document {
   startTime: Date;
   endTime: Date;
   totalAmount: number;
-  status: "active" | "upcoming" | "completed" | "cancelled";
-  paymentStatus: "pending" | "paid" | "refunded";
+  status:
+    | "active"
+    | "upcoming"
+    | "completed"
+    | "cancelled"
+    | "waiting"
+    | "allocated"; // "allocated" means offered to waitlist user, pending confirmation
+  paymentStatus: "pending" | "paid" | "refunded" | "partial_refund";
   checkInTime?: Date;
+  // New fields for Advanced Queue & Refunds
+  allocationExpiresAt?: Date; // If allocated, when does the offer expire?
+  refundAmount?: number;
+  cancellationReason?: string;
 }
 
 const BookingSchema: Schema = new Schema(
@@ -22,15 +32,26 @@ const BookingSchema: Schema = new Schema(
     totalAmount: { type: Number, required: true },
     status: {
       type: String,
-      enum: ["active", "upcoming", "completed", "cancelled"],
+      enum: [
+        "active",
+        "upcoming",
+        "completed",
+        "cancelled",
+        "waiting",
+        "allocated",
+      ],
       default: "upcoming",
     },
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "refunded"],
+      enum: ["pending", "paid", "refunded", "partial_refund"],
       default: "pending",
     },
     checkInTime: { type: Date },
+    // Advanced Queue Fields
+    allocationExpiresAt: { type: Date },
+    refundAmount: { type: Number, default: 0 },
+    cancellationReason: { type: String },
   },
   { timestamps: true }
 );

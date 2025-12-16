@@ -5,6 +5,9 @@ import {
   createBooking,
   cancelBooking,
   extendBooking,
+  joinWaitlist,
+  withdrawWaitlist,
+  confirmAllocation,
 } from "../controllers/booking.controller";
 import { protect } from "../middleware/auth.middleware";
 
@@ -87,6 +90,32 @@ router.post("/", createBooking);
 
 /**
  * @swagger
+ * /bookings/waitlist:
+ *   post:
+ *     summary: Join waiting list for a full slot
+ *     tags: [Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - slotId
+ *               - vehicleId
+ *               - startTime
+ *               - endTime
+ *               - totalAmount
+ *     responses:
+ *       201:
+ *         description: Joined waitlist successfully
+ */
+router.post("/waitlist", joinWaitlist);
+
+/**
+ * @swagger
  * /bookings/{id}/cancel:
  *   post:
  *     summary: Cancel a booking
@@ -111,6 +140,42 @@ router.post("/", createBooking);
  *         description: Booking not found
  */
 router.post("/:id/cancel", cancelBooking);
+
+/**
+ * @swagger
+ * /bookings/{id}/withdraw:
+ *   post:
+ *     summary: Withdraw from waiting list (Refunds apply)
+ *     tags: [Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Withdrawn successfully
+ */
+router.post("/:id/withdraw", withdrawWaitlist);
+
+/**
+ * @swagger
+ * /bookings/{id}/confirm:
+ *   post:
+ *     summary: Confirm an allocated slot
+ *     tags: [Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Allocation confirmed
+ */
+router.post("/:id/confirm", confirmAllocation);
 
 /**
  * @swagger
