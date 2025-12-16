@@ -174,7 +174,7 @@ export const LoginPage = () => {
           </form>
 
           {/* Divider */}
-          <div className="relative my-6">
+          {/* <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
             </div>
@@ -183,7 +183,7 @@ export const LoginPage = () => {
                 Or continue with
               </span>
             </div>
-          </div>
+          </div> */}
 
           {/* Social Login */}
           {/* <div className="grid grid-cols-2 gap-3">
@@ -221,7 +221,7 @@ export const LoginPage = () => {
           </div> */}
 
           {/* Sign Up Link */}
-          {/* <p className="text-center mt-6 text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-center mt-6 text-sm text-gray-600 dark:text-gray-400">
             Don't have an account?{" "}
             <Link
               to="/signup"
@@ -229,15 +229,15 @@ export const LoginPage = () => {
             >
               Sign up
             </Link>
-          </p> */}
+          </p>
         </motion.div>
 
         {/* Demo Credentials */}
-        <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+        {/* <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
           <p className="text-xs text-center text-blue-800 dark:text-blue-400">
             <strong>Demo:</strong> Use any email and password to login
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );
