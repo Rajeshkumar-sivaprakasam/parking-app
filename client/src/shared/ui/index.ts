@@ -11,3 +11,4 @@ export {
 export { Button } from "./Button";
 export { LoadingFallback } from "./LoadingFallback";
 export { MainLayout } from "./MainLayout";
+export { PWAInstallPrompt } from "./PWAInstallPrompt";
