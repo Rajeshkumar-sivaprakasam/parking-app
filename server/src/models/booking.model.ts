@@ -20,6 +20,7 @@ export interface IBooking extends Document {
   allocationExpiresAt?: Date; // If allocated, when does the offer expire?
   refundAmount?: number;
   cancellationReason?: string;
+  reminderSent?: boolean; // Track if 30-min reminder was sent
 }
 
 const BookingSchema: Schema = new Schema(
@@ -52,6 +53,7 @@ const BookingSchema: Schema = new Schema(
     allocationExpiresAt: { type: Date },
     refundAmount: { type: Number, default: 0 },
     cancellationReason: { type: String },
+    reminderSent: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

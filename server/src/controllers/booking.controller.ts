@@ -3,6 +3,11 @@ import { Request, Response } from "express";
 import Booking, { IBooking } from "../models/booking.model";
 import ParkingSlot from "../models/slot.model";
 import { sendResponse } from "../utils/response.utils";
+import {
+  notifyBookingConfirmation,
+  notifyCancellation,
+  notifyAllocation,
+} from "../utils/notification.utils";
 
 // ... existing code ...
 export const getBookings = async (req: Request, res: Response) => {
@@ -146,6 +151,18 @@ export const createBooking = async (req: Request, res: Response) => {
     }
 
     await session.commitTransaction();
+
+    // Send booking confirmation notifications (async, non-blocking)
+    notifyBookingConfirmation({
+      userId,
+      bookingId: savedBooking._id.toString(),
+      slotNumber: slot.number,
+      startTime: start,
+      endTime: end,
+      duration,
+      totalAmount,
+    }).catch((err) => console.error("[NOTIFY] Error:", err));
+
     sendResponse(res, 201, true, savedBooking);
   } catch (error) {
     // If transaction hasn't been committed, abort
@@ -200,7 +217,24 @@ const attemptAllocation = async (
     console.log(
       `[ALLOCATION] Assigned Slot ${slotId} to Candidate ${candidate._id}`
     );
-    // TODO: Send Notification (Email/SMS)
+
+    // Send allocation notification (async)
+    const slot = await ParkingSlot.findById(slotId).session(session);
+    if (slot) {
+      const duration =
+        (candidate.endTime.getTime() - candidate.startTime.getTime()) /
+        (60 * 60 * 1000);
+      notifyAllocation({
+        userId: candidate.userId.toString(),
+        bookingId: candidate._id.toString(),
+        slotNumber: slot.number,
+        startTime: candidate.startTime,
+        endTime: candidate.endTime,
+        duration,
+        totalAmount: candidate.totalAmount,
+        expiresAt: candidate.allocationExpiresAt,
+      }).catch((err) => console.error("[NOTIFY] Allocation error:", err));
+    }
   } else {
     // No candidate found, slot remains available (handled by the cancellation making it free logically)
     // If the cancelled booking was 'active', we need to set slot to 'available'
@@ -297,6 +331,25 @@ export const cancelBooking = async (req: Request, res: Response) => {
     }
 
     await session.commitTransaction();
+
+    // Send cancellation notification (async, non-blocking)
+    const slot = await ParkingSlot.findById(booking.slotId);
+    if (slot) {
+      const duration =
+        (booking.endTime.getTime() - booking.startTime.getTime()) /
+        (60 * 60 * 1000);
+      notifyCancellation({
+        userId,
+        bookingId: booking._id.toString(),
+        slotNumber: slot.number,
+        startTime: booking.startTime,
+        endTime: booking.endTime,
+        duration,
+        totalAmount: booking.totalAmount,
+        refundAmount,
+      }).catch((err) => console.error("[NOTIFY] Cancellation error:", err));
+    }
+
     sendResponse(
       res,
       200,

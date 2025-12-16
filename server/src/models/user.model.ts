@@ -6,6 +6,7 @@ export interface IUser extends Document {
   email: string;
   password?: string; // Optional because we might not send it back to client
   phoneNumber: string;
+  fcmTokens: string[]; // Firebase Cloud Messaging tokens for push notifications
 }
 
 const UserSchema: Schema = new Schema({
@@ -14,6 +15,7 @@ const UserSchema: Schema = new Schema({
   password: { type: String, required: true },
   role: { type: String, required: true, default: "user" },
   phoneNumber: { type: String, required: true },
+  fcmTokens: { type: [String], default: [] },
 });
 
 // Performance index for role-based queries

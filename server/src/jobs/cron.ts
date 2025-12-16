@@ -143,4 +143,54 @@ export const startCronJobs = () => {
       session.endSession();
     }
   });
+
+  // Third Cron: Booking Reminders (Runs every 5 minutes)
+  // Sends reminder 30 minutes before booking start
+  cron.schedule("*/5 * * * *", async () => {
+    try {
+      const now = new Date();
+      const thirtyMinsFromNow = new Date(now.getTime() + 30 * 60 * 1000);
+      const twentyFiveMinsFromNow = new Date(now.getTime() + 25 * 60 * 1000);
+
+      // Find bookings starting in ~30 minutes that haven't been reminded
+      const bookingsToRemind = await Booking.find({
+        status: "upcoming",
+        startTime: {
+          $gte: twentyFiveMinsFromNow,
+          $lte: thirtyMinsFromNow,
+        },
+        reminderSent: { $ne: true },
+      }).populate("slotId");
+
+      // Import notification helper dynamically to avoid circular deps
+      const { notifyReminder } = await import("../utils/notification.utils");
+
+      for (const booking of bookingsToRemind) {
+        const slot = booking.slotId as any;
+        const duration =
+          (booking.endTime.getTime() - booking.startTime.getTime()) /
+          (60 * 60 * 1000);
+
+        await notifyReminder({
+          userId: booking.userId.toString(),
+          bookingId: booking._id.toString(),
+          slotNumber: slot?.slotNumber || "N/A",
+          startTime: booking.startTime,
+          endTime: booking.endTime,
+          duration,
+          totalAmount: booking.totalAmount,
+        });
+
+        // Mark as reminded to prevent duplicate notifications
+        booking.reminderSent = true;
+        await booking.save();
+
+        console.log(`[CRON] Reminder sent for booking ${booking._id}`);
+      }
+    } catch (error) {
+      console.error("[CRON] Error in Reminder Cron:", error);
+    }
+  });
+
+  console.log("[CRON] All cron jobs started successfully");
 };
