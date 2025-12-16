@@ -5,6 +5,8 @@ import {
   bookingService,
   type Booking,
 } from "../../features/bookings/api/bookingService";
+import { CardSkeleton, PageHeaderSkeleton } from "../../shared/ui/Skeleton";
+import { Button } from "../../shared/ui/Button";
 
 export const BookingsPage = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -14,6 +16,7 @@ export const BookingsPage = () => {
   const [showExtendModal, setShowExtendModal] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [extendHours, setExtendHours] = useState(2);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -61,8 +64,9 @@ export const BookingsPage = () => {
   };
 
   const handleCancelBooking = async () => {
-    if (!selectedBooking) return;
+    if (!selectedBooking || actionLoading) return;
 
+    setActionLoading(true);
     try {
       await bookingService.cancelBooking(selectedBooking._id);
       alert("Booking cancelled successfully!");
@@ -72,12 +76,15 @@ export const BookingsPage = () => {
     } catch (error) {
       console.error("Failed to cancel booking:", error);
       alert("Failed to cancel booking");
+    } finally {
+      setActionLoading(false);
     }
   };
 
   const handleExtendBooking = async () => {
-    if (!selectedBooking) return;
+    if (!selectedBooking || actionLoading) return;
 
+    setActionLoading(true);
     try {
       const additionalAmount = extendHours * 5; // Assuming RM 5 per hour
       await bookingService.extendBooking(selectedBooking._id, {
@@ -91,11 +98,30 @@ export const BookingsPage = () => {
     } catch (error) {
       console.error("Failed to extend booking:", error);
       alert("Failed to extend booking");
+    } finally {
+      setActionLoading(false);
     }
   };
 
+  // Skeleton loading state
   if (loading) {
-    return <div className="text-center py-10">Loading bookings...</div>;
+    return (
+      <div className="space-y-6">
+        <PageHeaderSkeleton />
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+            >
+              <CardSkeleton />
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -245,18 +271,21 @@ export const BookingsPage = () => {
               onChange={(e) => setCancelReason(e.target.value)}
             />
             <div className="flex justify-end gap-3">
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => setShowCancelModal(false)}
-                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-semibold"
+                disabled={actionLoading}
               >
                 Keep Booking
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="danger"
                 onClick={handleCancelBooking}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700"
+                loading={actionLoading}
+                loadingText="Cancelling..."
               >
                 Confirm Cancel
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -288,18 +317,21 @@ export const BookingsPage = () => {
               </button>
             </div>
             <div className="flex justify-end gap-3">
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => setShowExtendModal(false)}
-                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-semibold"
+                disabled={actionLoading}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="primary"
                 onClick={handleExtendBooking}
-                className="px-4 py-2 bg-brand-primary text-white rounded-lg font-semibold hover:bg-blue-600"
+                loading={actionLoading}
+                loadingText="Processing..."
               >
                 Pay RM {(extendHours * 5)?.toFixed(2)}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

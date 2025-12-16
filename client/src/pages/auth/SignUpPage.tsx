@@ -18,6 +18,7 @@ export const SignUpPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const { loading, error: authError } = useSelector(
     (state: RootState) => state.auth
@@ -50,6 +51,11 @@ export const SignUpPage = () => {
       return;
     }
 
+    if (!agreedToTerms) {
+      setLocalError("Please agree to the Terms of Service and Privacy Policy");
+      return;
+    }
+
     const resultAction = await dispatch(
       registerUser({
         name: formData.name,
@@ -63,6 +69,15 @@ export const SignUpPage = () => {
       navigate("/login");
     }
   };
+
+  // Check if form is valid for enabling button
+  const isFormValid =
+    formData.name &&
+    formData.email &&
+    formData.phone &&
+    formData.password &&
+    formData.confirmPassword &&
+    agreedToTerms;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 relative overflow-hidden">
@@ -243,10 +258,15 @@ export const SignUpPage = () => {
             <div className="flex items-start gap-2">
               <input
                 type="checkbox"
-                required
-                className="w-4 h-4 mt-1 rounded border-gray-300 text-brand-primary focus:ring-brand-primary"
+                id="terms-checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="w-4 h-4 mt-1 rounded border-gray-300 text-brand-primary focus:ring-brand-primary cursor-pointer"
               />
-              <label className="text-xs text-gray-600 dark:text-gray-400">
+              <label
+                htmlFor="terms-checkbox"
+                className="text-xs text-gray-600 dark:text-gray-400 cursor-pointer"
+              >
                 I agree to the{" "}
                 <button
                   type="button"
@@ -267,8 +287,8 @@ export const SignUpPage = () => {
             {/* Sign Up Button */}
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-brand-primary text-white py-3.5 rounded-xl font-semibold shadow-lg shadow-brand-primary/30 hover:bg-blue-600 hover:shadow-brand-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              disabled={loading || !isFormValid}
+              className="w-full bg-brand-primary text-white py-3.5 rounded-xl font-semibold shadow-lg shadow-brand-primary/30 hover:bg-blue-600 hover:shadow-brand-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-primary disabled:active:scale-100"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
