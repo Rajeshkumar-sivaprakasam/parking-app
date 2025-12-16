@@ -216,7 +216,42 @@ export const BookingsPage = () => {
                     </p>
                   </div>
                 </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
+                    <Clock className="text-green-600" size={20} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Duration
+                    </p>
+                    <p className="font-semibold text-gray-900 dark:text-white">
+                      {Math.round(
+                        (new Date(booking.endTime).getTime() -
+                          new Date(booking.startTime).getTime()) /
+                          (1000 * 60 * 60)
+                      )}{" "}
+                      hours
+                    </p>
+                  </div>
+                </div>
               </div>
+
+              {/* Vehicle Info */}
+              {booking.vehicleId && (
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  <span className="font-medium">Vehicle:</span>
+                  <span className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded font-mono">
+                    {booking.vehicleId.plateNumber}
+                  </span>
+                  {booking.vehicleId.make && booking.vehicleId.vehicleModel && (
+                    <span className="text-gray-500">
+                      ({booking.vehicleId.make} {booking.vehicleId.vehicleModel}
+                      )
+                    </span>
+                  )}
+                </div>
+              )}
 
               {/* Actions */}
               <div className="flex gap-3 justify-end pt-4 border-t border-gray-100 dark:border-gray-700">

@@ -236,7 +236,7 @@ export const SlotSelectionPage = () => {
                       slot.status === "available" && setSelectedSlot(slot._id)
                     }
                     disabled={slot.status !== "available"}
-                    className={`aspect-square rounded-xl border-2 font-bold text-sm flex items-center justify-center transition-all relative ${getSlotColor(
+                    className={`aspect-square rounded-xl border-2 font-bold text-sm flex items-center justify-center transition-all relative group ${getSlotColor(
                       slot
                     )}`}
                   >
@@ -246,6 +246,25 @@ export const SlotSelectionPage = () => {
                         <Check size={12} className="text-brand-primary" />
                       </div>
                     )}
+                    {/* Tooltip for occupied slots showing booking end time */}
+                    {slot.status === "occupied" &&
+                      slot.currentBookingEndTime && (
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="text-gray-300">Available at:</span>
+                            <span className="font-semibold">
+                              {new Date(
+                                slot.currentBookingEndTime
+                              ).toLocaleTimeString(undefined, {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          </div>
+                          {/* Tooltip arrow */}
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700" />
+                        </div>
+                      )}
                   </motion.button>
                 ))}
               </div>

@@ -10,6 +10,7 @@ import {
   PageHeaderSkeleton,
 } from "../../shared/ui/Skeleton";
 import { Button } from "../../shared/ui/Button";
+import { invalidateCache } from "../../api/axiosInstance";
 
 export const VehiclesPage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -61,6 +62,9 @@ export const VehiclesPage = () => {
         await vehicleService.addVehicle(vehicleData);
       }
 
+      // Invalidate cache to ensure fresh data from API
+      invalidateCache.vehicles();
+
       setShowAddModal(false);
       setEditingVehicle(null);
       resetForm();
@@ -89,6 +93,8 @@ export const VehiclesPage = () => {
       setDeleting(id);
       try {
         await vehicleService.deleteVehicle(id);
+        // Invalidate cache to ensure fresh data from API
+        invalidateCache.vehicles();
         fetchVehicles();
       } catch (error) {
         console.error("Failed to delete vehicle:", error);

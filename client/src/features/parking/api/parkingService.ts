@@ -8,6 +8,7 @@ export interface ParkingSlot {
   status: "available" | "occupied" | "reserved";
   pricePerHour: number;
   location: string;
+  currentBookingEndTime?: string; // End time of current booking for occupied slots
 }
 
 export const parkingService = {

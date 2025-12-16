@@ -34,15 +34,23 @@ export const getSlots = async (req: Request, res: Response) => {
           status: { $ne: "cancelled" },
           $or: [{ startTime: { $lt: end }, endTime: { $gt: start } }],
         })
-          .select("slotId")
+          .select("slotId endTime")
           .lean(); // Use lean for read-only query
 
-        const bookedSlotIds = new Set(bookings.map((b) => b.slotId.toString()));
+        // Create a map of slot ID to booking end time
+        const slotBookingMap = new Map(
+          bookings.map((b) => [b.slotId.toString(), b.endTime])
+        );
 
-        // Mark booked slots as occupied for this view
+        // Mark booked slots as occupied for this view and include end time
         slots = slots.map((slot: any) => {
-          if (bookedSlotIds.has(slot._id.toString())) {
-            return { ...slot, status: "occupied" };
+          const bookingEndTime = slotBookingMap.get(slot._id.toString());
+          if (bookingEndTime) {
+            return {
+              ...slot,
+              status: "occupied",
+              currentBookingEndTime: bookingEndTime,
+            };
           }
           return slot;
         });
